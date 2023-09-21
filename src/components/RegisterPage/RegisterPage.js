@@ -33,6 +33,7 @@ function RegisterPage() {
       })
 
       setLoading(false)
+      firebase.auth().signOut();
     } catch (error) {
       setErrorFromSubmit(error.message);
       setTimeout(() => {

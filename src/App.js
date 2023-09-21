@@ -13,7 +13,7 @@ import React, { useEffect } from "react";
 import firebase from "./firebase";
 
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "./redux/actions/user_action";
+import { setUser, clearUser } from "./redux/actions/user_action";
 
 function App() {
 
@@ -32,6 +32,7 @@ function App() {
       }
       else {
         navigate('/login')
+        dispatch(clearUser(user))
       }
     })
   }, []);
