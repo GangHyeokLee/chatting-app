@@ -4,6 +4,7 @@ import { FaPlus } from 'react-icons/fa';
 import { Modal, Button, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import firebase from './../../../firebase';
+import { setCurrentChatRoom } from './../../../redux/actions/chatRoom_action';
 
 export class ChatRooms extends Component {
 
@@ -12,20 +13,31 @@ export class ChatRooms extends Component {
     name: "",
     description: "",
     chatRoomsRef: firebase.database().ref("chatRooms"),
-    chatRooms:[],
+    chatRooms: [],
+    firstLoad: true,
+    activeChatRoomId: '',
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.AddChatRoomListeners();
-
   }
 
-  AddChatRoomListeners = () =>{
+  setFirstChatRoom = () => {
+    const firstChatRoom = this.state.chatRooms[0]
+    if (this.state.firstLoad && this.state.chatRooms.length > 0) {
+      this.props.dispatch(setCurrentChatRoom(firstChatRoom))
+      this.setState({activeChatRoomId: firstChatRoom.id})
+    }
+    this.setState({ firstLoad: false })
+  }
+
+  AddChatRoomListeners = () => {
     let chatRoomsArray = [];
 
     this.state.chatRoomsRef.on('child_added', DataSnapShot => {
       chatRoomsArray.push(DataSnapShot.val());
-      this.setState({chatRooms: chatRoomsArray})
+      this.setState({ chatRooms: chatRoomsArray },
+        () => this.setFirstChatRoom());
     })
   }
 
@@ -50,7 +62,7 @@ export class ChatRooms extends Component {
       id: key,
       name: name,
       description: description,
-      createdBy:{
+      createdBy: {
         name: user.displayName,
         image: user.photoURL
       }
@@ -69,9 +81,22 @@ export class ChatRooms extends Component {
   }
 
   isFormValid = (name, description) => name && description;
-  renderChatRooms = (chatRooms) => chatRooms.length>0&&chatRooms.map(room => (<li key={room.id}># {room.name}</li>
 
-  ))
+  changeChatRoom = (room) => {
+    this.props.dispatch(setCurrentChatRoom(room));
+    this.setState({activeChatRoomId: room.id});
+  }
+
+  renderChatRooms = (chatRooms) => chatRooms.length > 0 &&
+    chatRooms.map(room => (
+      <li
+        key={room.id}
+        onClick={() => this.changeChatRoom(room)}
+        style={{ cursor: 'pointer', backgroundColor: room.id === this.state.activeChatRoomId && "#FFFFFF45"}}
+      >
+        # {room.name}
+      </li>
+    ))
 
   render() {
     return (
@@ -90,7 +115,7 @@ export class ChatRooms extends Component {
 
         </div>
 
-        <ul style={{listStyleType: 'none', padding: 0}}>
+        <ul style={{ listStyleType: 'none', padding: 0 }}>
 
           {this.renderChatRooms(this.state.chatRooms)}
         </ul>
@@ -106,16 +131,16 @@ export class ChatRooms extends Component {
               <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label>방 이름</Form.Label>
                 <Form.Control
-                onChange={(e) => this.setState({name: e.target.value})}
-                type="text" placeholder="Enter a chat room name" />
+                  onChange={(e) => this.setState({ name: e.target.value })}
+                  type="text" placeholder="Enter a chat room name" />
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="formBasicPassword">
                 <Form.Label>방 설명</Form.Label>
-                <Form.Control 
-                onChange={(e) => this.setState({description: e.target.value})}
-                
-                type="text" placeholder="Enter a chat room description" />
+                <Form.Control
+                  onChange={(e) => this.setState({ description: e.target.value })}
+
+                  type="text" placeholder="Enter a chat room description" />
               </Form.Group>
             </Form>
           </Modal.Body>
