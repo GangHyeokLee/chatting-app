@@ -33,6 +33,8 @@ function UserPanel() {
                 .child(`user_image/${user.uid}`)
                 .put(file, metadata)
             let downloadURL = await uploadTaskSnapshot.ref.getDownloadURL();
+
+            // 프로필 이미지 수정
             await firebase.auth().currentUser.updateProfile({
                 photoURL: downloadURL
             })
