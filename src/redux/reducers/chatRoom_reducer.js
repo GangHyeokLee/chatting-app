@@ -4,7 +4,7 @@ const initialChatRoomState={
     currentChatRoom: null
 }
 
-export default function(state = initialChatRoomState, action){
+export default function chatRoomReducer(state = initialChatRoomState, action){
     switch(action.type){
         case SET_CURRENT_CHAT_ROOM:
             return {

@@ -5,7 +5,7 @@ const initialUserState={
     isLoading: true
 }
 
-export default function(state = initialUserState, action){
+export default function userReducer(state = initialUserState, action){
     switch(action.type){
         case SET_USER:
             return {
